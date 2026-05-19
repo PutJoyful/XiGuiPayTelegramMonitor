@@ -72,7 +72,7 @@ public static class MessageFormatExtensions
             result = "`" + result.Replace("`", "\\`") + "`";
         }
 
-            // *符号去掉+内容复制
+            // *符号去掉+内容复制11
 
         // else
         // {
