@@ -32,8 +32,22 @@ async function api(CA, hJ) {
 }
 
 const out = document.getElementById('out');
+const loginStatusEl = document.getElementById('loginStatus');
+const monitorStatusEl = document.getElementById('monitorStatus');
+const proxyInfoEl = document.getElementById('proxyInfo');
+const targetInfoEl = document.getElementById('targetInfo');
+const btnRefreshStatus = document.getElementById('btnRefreshStatus');
+const btnClearLog = document.getElementById('btnClearLog');
 const log = Me => {
-    console.log(typeof Me === 'string' ? Me : JSON.stringify(Me, null, 2));
+    const text = typeof Me === 'string' ? Me : JSON.stringify(Me, null, 2);
+    if (out) {
+        const item = document.createElement('div');
+        item.className = 'text-xs text-base-content/80 mb-2';
+        item.textContent = text;
+        out.appendChild(item);
+        out.scrollTop = out.scrollHeight;
+    }
+    console.log(text);
 };
 const proxyType = document.getElementById('proxyType');
 const proxyUrl = document.getElementById('proxyUrl');
@@ -45,6 +59,43 @@ const btns = {
     stop: document.getElementById('btnStop')
 };
 
+function updateDashboard() {
+    if (loginStatusEl) {
+        loginStatusEl.textContent = state.logged ? '已登录' : '未登录';
+        loginStatusEl.className = state.logged ? 'text-success text-2xl font-semibold' : 'text-error text-2xl font-semibold';
+    }
+    if (monitorStatusEl) {
+        monitorStatusEl.textContent = state.mon ? '已运行' : '未运行';
+        monitorStatusEl.className = state.mon ? 'text-success text-2xl font-semibold' : 'text-error text-2xl font-semibold';
+    }
+    if (proxyInfoEl) {
+        const typeLabel = proxyType ? proxyType.selectedOptions[0]?.text : '未知';
+        const url = proxyUrl ? proxyUrl.value.trim() : '';
+        proxyInfoEl.textContent = typeLabel + (url ? ` / ${url}` : ' / 未设置');
+    }
+    if (targetInfoEl) {
+        const selected = dialogList ? dialogList.selectedOptions[0]?.text : '';
+        targetInfoEl.textContent = selected || '未选择';
+    }
+}
+
+function clearLog() {
+    if (out) {
+        out.innerHTML = '';
+    }
+    toast('日志已清空');
+}
+
+if (btnRefreshStatus) {
+    btnRefreshStatus.addEventListener('click', () => {
+        fetchState().catch(err => toast(`刷新状态失败: ${err.message}`, false));
+    });
+}
+if (btnClearLog) {
+    btnClearLog.addEventListener('click', clearLog);
+}
+
+
 let state = { logged: false, mon: false };
 
 function applyState() {
@@ -53,6 +104,7 @@ function applyState() {
     btns.target.disabled = !state.logged;
     btns.start.disabled = !state.logged || state.mon;
     btns.stop.disabled = !state.logged || !state.mon;
+    updateDashboard();
 }
 
 async function fetchState() {
@@ -63,6 +115,7 @@ async function fetchState() {
         document.getElementById('btnLogin').innerText = '已登录 (点击重新登录)';
     else
         document.getElementById('btnLogin').innerText = '登录';
+    log(`刷新状态: 登录=${state.logged ? '是' : '否'}，监控=${state.mon ? '运行' : '停止'}`);
 }
 
 function proxyTypeChanged() {
@@ -81,7 +134,7 @@ async function setProxy() {
             body: JSON.stringify({ type: +proxyType.value, url: CA })
         });
         const hX = ZJ.data;
-        log('代理设置响应:', hX);
+        log(`代理设置响应: ${hX}`);
         switch (hX) {
             case 'LoggedIn':
                 toast('代理已设置，登录状态已保持');
@@ -206,6 +259,9 @@ async function loadDialogs() {
     const { data: jt } = await api(`${API}/dialogs`);
     dialogList.innerHTML = jt.map(rJ => `<option value="${rJ.id}">${rJ.displayTitle}</option>`).join('');
     toast('会话已加载');
+    log(`已加载 ${jt.length} 个会话`);
+    
+    updateDashboard();
 }
 
 async function setTarget() {
@@ -218,6 +274,8 @@ async function setTarget() {
         body: dialogList.value
     });
     toast('已设置目标');
+    log(`已设置目标群：${dialogList.selectedOptions[0]?.text || dialogList.value}`);
+    updateDashboard();
 }
 
 async function startMonitor() {
@@ -246,6 +304,7 @@ async function startMonitor() {
             XZ = `未知状态: ${jt}`;
     }
     toast(`${XZ}`, Sh);
+    log(`监控操作: ${XZ}`);
     state.mon = Sh;
     applyState();
 }
@@ -253,9 +312,9 @@ async function startMonitor() {
 async function stopMonitor() {
     await api(`${API}/stop`, { method: 'POST' });
     toast('已停止');
+    log('监控已停止');
     state.mon = false;
     applyState();
 }
 
-function proxyTypeChanged(){};
 fetchState();

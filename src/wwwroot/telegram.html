@@ -42,64 +42,105 @@
         </div>
     </dialog>
 
-    <div class="container mx-auto max-w-4xl">
-        <h1 class="text-2xl font-bold mb-6">Telegram 控制台</h1>
-        <button id="btnLogin" class="btn btn-primary mb-4" onclick="openLogin()">登录 / 重新登录</button>
+    <div class="container mx-auto max-w-5xl space-y-4">
+        <!-- 头部操作栏 -->
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Telegram 控制台</h1>
+                <p class="text-sm text-base-content/70 mt-2">显示登录状态、监控状态与运行日志，便于快速排查和控制。</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button id="btnLogin" class="btn btn-primary" onclick="openLogin()">登录 / 重新登录</button>
+                <button id="btnRefreshStatus" class="btn btn-secondary">刷新状态</button>
+            </div>
+        </div>
 
-        <div class="card bg-base-100 shadow-xl mb-4">
-            <div class="card-body">
-                <h2 class="card-title">代理设置</h2>
-                <div class="flex flex-wrap gap-2 items-center">
-                    <select id="proxyType" class="select select-bordered w-28" onchange="proxyTypeChanged()">
-                        <option value="0">跟随系统</option>
-                        <option value="1">Socks5</option>
-                        <option value="2">MTProxy</option>
-                    </select>
-                    <input id="proxyUrl" class="input input-bordered flex-1" placeholder="选择代理类型后输入..." disabled>
-                    <button class="btn" onclick="setProxy()">设置代理</button>
+        <!-- 三个卡片并排：当前状态、代理与当前配置（仅代理设置）、当前配置（展示信息） -->
+        <div class="grid gap-4 md:grid-cols-3">
+            <!-- 卡片1: 当前状态 -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">当前状态</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-4 rounded-lg border border-base-300 p-3">
+                            <span class="font-medium">登录状态</span>
+                            <span id="loginStatus" class="text-error text-lg font-semibold">未登录</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 rounded-lg border border-base-300 p-3">
+                            <span class="font-medium">监听状态</span>
+                            <span id="monitorStatus" class="text-error text-lg font-semibold">未运行</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片2: 代理与当前配置（仅负责代理设置部分） -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">代理与当前配置</h2>
+                    <div class="space-y-3">
+                        <div class="text-sm text-base-content/70">代理设置</div>
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <select id="proxyType" class="select select-bordered w-full sm:w-36" onchange="proxyTypeChanged()">
+                                <option value="0">跟随系统</option>
+                                <option value="1">Socks5</option>
+                                <option value="2">MTProxy</option>
+                            </select>
+                            <input id="proxyUrl" class="input input-bordered flex-1 min-w-[160px]" placeholder="选择代理类型后输入..." disabled>
+                            <button class="btn btn-primary" onclick="setProxy()">设置代理</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片3: 当前配置（展示代理信息 + 目标群） -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">当前配置</h2>
+                    <div class="space-y-4">
+                        <div class="rounded-lg border border-base-300 p-3">
+                            <div class="text-sm text-base-content/70">代理信息</div>
+                            <div id="proxyInfo" class="mt-1 text-base font-medium break-all">未设置</div>
+                        </div>
+                        <div class="rounded-lg border border-base-300 p-3">
+                            <div class="text-sm text-base-content/70">目标群</div>
+                            <div id="targetInfo" class="mt-1 text-base font-medium break-all">未选择</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-xl mb-4">
-            <div class="card-body">
-                <h2 class="card-title">目标群设置</h2>
-                <div class="flex flex-wrap gap-2 items-center">
-                    <button id="btnLoadDialogs" class="btn btn-sm" onclick="loadDialogs()" disabled>加载会话</button>
-                    <select id="dialogList" class="select select-bordered flex-1" disabled></select>
-                    <button id="btnSetTarget" class="btn" onclick="setTarget()" disabled>设为目标</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card bg-base-100 shadow-xl mb-4">
-            <div class="card-body">
-                <h2 class="card-title">监控控制</h2>
-                <div class="flex gap-4">
-                    <button id="btnStart" class="btn btn-success" onclick="startMonitor()" disabled>启动监控</button>
-                    <button id="btnStop" class="btn btn-error" onclick="stopMonitor()" disabled>停止监控</button>
+        <!-- 底部卡片: 目标与监听（独立占据整行，包含日志输出） -->
+        <div class="grid gap-4">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">目标与监听</h2>
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <button id="btnLoadDialogs" class="btn btn-sm btn-secondary" onclick="loadDialogs()" disabled>加载会话</button>
+                            <select id="dialogList" class="select select-bordered flex-1" disabled></select>
+                            <button id="btnSetTarget" class="btn btn-sm btn-primary" onclick="setTarget()" disabled>设为目标</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="btnStart" class="btn btn-success flex-1" onclick="startMonitor()" disabled>启动监控</button>
+                            <button id="btnStop" class="btn btn-error flex-1" onclick="stopMonitor()" disabled>停止监控</button>
+                        </div>
+                        <div class="divider"></div>
+                        <!-- 日志输出区域 + 清空日志按钮（右侧） -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-base-content/70">日志输出</div>
+                                <button id="btnClearLog" class="btn btn-outline btn-sm">清空日志</button>
+                            </div>
+                            <div id="out" class="min-h-[260px] max-h-[320px] overflow-y-auto rounded-lg border border-base-300 bg-base-200 p-4 text-xs font-mono text-base-content/80"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="telegramAD.js"></script>
-    <script>
-        function proxyTypeChanged() {
-            const proxyType = document.getElementById('proxyType').value;
-            const proxyUrl = document.getElementById('proxyUrl');
-            
-            if (proxyType === '0') {
-                proxyUrl.disabled = true;
-                proxyUrl.placeholder = "选择代理类型后输入...";
-            } else if (proxyType === '1') {
-                proxyUrl.disabled = false;
-                proxyUrl.placeholder = "格式: host:port 或 host:port:username:password";
-            } else if (proxyType === '2') {
-                proxyUrl.disabled = false;
-                proxyUrl.placeholder = "格式: http://t.me/proxy...";
-            }
-        }
-    </script>
 </body>
 </html>

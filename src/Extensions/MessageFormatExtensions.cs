@@ -25,9 +25,9 @@ public static class MessageFormatExtensions
         var mergedStyle = MergeKeywordStyles(hitKeywords);
         var styledText = ApplyStylesToText(message.message, mergedStyle);
 
-        // var adSection = !string.IsNullOrWhiteSpace(ad)
-        //        ? $"*{ad}*"
-        //        : string.Empty;
+        var adSection = !string.IsNullOrWhiteSpace(ad)
+               ? $"*{ad}*"
+               : string.Empty;
 
         var keywordList = string.Join(", ",
             hitKeywords.Select(k => $"\\#{EscapeMdV2(k.KeywordContent)}"));
@@ -74,24 +74,24 @@ public static class MessageFormatExtensions
 
             // *符号去掉+内容复制
 
-        // else
-        // {
-        //     
-        //     // if (cfg.IsBold) result = $"*{result}*";
+        else
+        {
+            
+            // if (cfg.IsBold) result = $"*{result}*";
 
-        //     if (cfg.IsItalic && cfg.IsUnderline)
-        //     {
-        //         result = $"___{result}_**__";
-        //     }
-        //     else
-        //     {
-        //         if (cfg.IsItalic) result = $"_{result}_";
-        //         if (cfg.IsUnderline) result = $"__{result}__";
-        //     }
+            // if (cfg.IsItalic && cfg.IsUnderline)
+            // {
+            //     result = $"___{result}_**__";
+            // }
+            // else
+            // {
+            //     if (cfg.IsItalic) result = $"_{result}_";
+            //     if (cfg.IsUnderline) result = $"__{result}__";
+            // }
 
-        //     if (cfg.IsStrikeThrough) result = $"~{result}~";
-        //     if (cfg.IsSpoiler) result = $"||{result}||";
-        // }
+            // if (cfg.IsStrikeThrough) result = $"~{result}~";
+            // if (cfg.IsSpoiler) result = $"||{result}||";
+        }
         if (cfg.IsQuote)
             result = "\n>" + result.Replace("\n", "\n> ");
 
