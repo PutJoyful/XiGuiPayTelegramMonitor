@@ -25,9 +25,9 @@ public static class MessageFormatExtensions
         var mergedStyle = MergeKeywordStyles(hitKeywords);
         var styledText = ApplyStylesToText(message.message, mergedStyle);
 
-        var adSection = !string.IsNullOrWhiteSpace(ad)
-               ? $"*{ad}*"
-               : string.Empty;
+        // var adSection = !string.IsNullOrWhiteSpace(ad)
+        //        ? $"*{ad}*"
+        //        : string.Empty;
 
         var keywordList = string.Join(", ",
             hitKeywords.Select(k => $"\\#{EscapeMdV2(k.KeywordContent)}"));
