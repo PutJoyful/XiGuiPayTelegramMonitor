@@ -27,7 +27,7 @@ function toast(GI, DV = true) {
     const o = document.createElement('div');
     o.setAttribute('role', 'alert');
     o.className = `alert alert-${DV ? 'success' : 'error'} alert-horizontal shadow-lg`;
-    o.innerHTML = `<span>${GI}</span>`;
+    // o.innerHTML = `<span>${GI}</span>`;
     toastBox.appendChild(o);
     setTimeout(() => o.remove(), 4000);
 }
