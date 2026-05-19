@@ -33,14 +33,17 @@ public static class MessageFormatExtensions
             hitKeywords.Select(k => $"\\#{EscapeMdV2(k.KeywordContent)}"));
 
         var sb = new StringBuilder()
-        .AppendLine($"内容：{styledText}")
+        .AppendLine($"内容：`{styledText}`")
         .AppendLine($"发送ID：`{sendMessageEntity.SendId}`")
         .AppendLine($"发送方：[{sendMessageEntity.SendTitle}](tg://user?id={sendMessageEntity.SendId})   {sendMessageEntity.SendUserNames.JoinUsernames()}")
         .AppendLine($"来源：`{sendMessageEntity.FromTitle}`    {sendMessageEntity.FromUserNames.JoinUsernames()}")
-        .AppendLine($"时间：`{message.Date.AddHours(8):yyyy-MM-dd HH:mm:ss}`")
+        .AppendLine($"时间:`{message.Date.AddHours(8):yyyy-MM-dd HH:mm:ss}`")
         .AppendLine($"链接：[【直达】](https://t.me/{sendMessageEntity.FromMainUserName ?? $"c/{sendMessageEntity.FromId}"}/{message.id})")
         .AppendLine($"*命中关键词：* {keywordList}")
-        .AppendLine("`--------@XiGuiPay--------`");
+
+
+        .AppendLine("`--------@XiGuiPay--------`")
+        .AppendLine($"监听定制：[戏鬼](https://t.me/XiGuipay)");
         // .Append(adSection);
         return sb.ToString();
     }
@@ -68,23 +71,27 @@ public static class MessageFormatExtensions
         {
             result = "`" + result.Replace("`", "\\`") + "`";
         }
-        else
-        {
-            if (cfg.IsBold) result = $"*{result}*";
 
-            if (cfg.IsItalic && cfg.IsUnderline)
-            {
-                result = $"___{result}_**__";
-            }
-            else
-            {
-                if (cfg.IsItalic) result = $"_{result}_";
-                if (cfg.IsUnderline) result = $"__{result}__";
-            }
+            // *符号去掉+内容复制
 
-            if (cfg.IsStrikeThrough) result = $"~{result}~";
-            if (cfg.IsSpoiler) result = $"||{result}||";
-        }
+        // else
+        // {
+        //     
+        //     // if (cfg.IsBold) result = $"*{result}*";
+
+        //     if (cfg.IsItalic && cfg.IsUnderline)
+        //     {
+        //         result = $"___{result}_**__";
+        //     }
+        //     else
+        //     {
+        //         if (cfg.IsItalic) result = $"_{result}_";
+        //         if (cfg.IsUnderline) result = $"__{result}__";
+        //     }
+
+        //     if (cfg.IsStrikeThrough) result = $"~{result}~";
+        //     if (cfg.IsSpoiler) result = $"||{result}||";
+        // }
         if (cfg.IsQuote)
             result = "\n>" + result.Replace("\n", "\n> ");
 
